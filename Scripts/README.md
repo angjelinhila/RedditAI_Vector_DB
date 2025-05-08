@@ -7,7 +7,7 @@ This project provides a hybrid retrieval system using both sparse (BM25 via Elas
 ## 🚀 Features
 - Dense retrieval using FAISS
 - Sparse keyword-based search using Elasticsearch
-- 📂 Download `ingest_data3.ipynb` here: [Box Shared Link]([https://box.com/yourlink](https://utexas.box.com/s/guzwdm71561gci391uxuq0cul39iuw8k))
+- 📂 Download `ingest_data3.ipynb` here: [[Box Shared Link](https://utexas.box.com/s/guzwdm71561gci391uxuq0cul39iuw8k)]([https://box.com/yourlink](https://utexas.box.com/s/guzwdm71561gci391uxuq0cul39iuw8k))
 - Simple RAG-style synthesis for contextual answers
 - JSON-based API interface with FastAPI
 

@@ -1,0 +1,16 @@
+Data/
+FAISS/index/
+FAISS/index/
+*.index
+*.json
+data/
+FAISS/index/
+*.index
+*.json
+Data/
+Elasticsearch/ingest_data3.ipynb
+Data/
+*.index
+*.json
+FAISS/index/
+Elasticsearch/ingest_data3.ipynb

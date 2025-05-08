@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hybrid-reddit-api
+    env: python
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: false
+    buildFilter:
+      paths:
+        - Dockerfile
+        - requirements.txt
+        - main.py
+        - FAISS/**
+        - Elasticsearch/**
+        - Scripts/**
+    envVars:
+      - key: PORT
+        value: 8000

@@ -5,3 +5,6 @@ transformers
 torch
 faiss-cpu
 numpy
+flask
+faiss-cpu
+numpy

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from typing import List
-from retrieval import hybrid_query
+from Retrieval import hybrid_query
 
 app = FastAPI(title="Hybrid Reddit Search API")
 

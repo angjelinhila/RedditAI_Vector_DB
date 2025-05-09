@@ -11,7 +11,7 @@ services:
         - Scripts/Dockerfile
         - Scripts/requirements.txt
         - Scripts/main.py
-        - Scripts/retrieval.py
+        - Scripts/Retrieval.py
         - Scripts/*.py
         - Scripts/*.ipynb
         - FAISS/**

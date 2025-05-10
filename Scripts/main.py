@@ -19,3 +19,7 @@ class HybridResponse(BaseModel):
 def query_endpoint(request: QueryRequest):
     result = hybrid_query(request.query, request.filename)
     return result
+
+@app.get("/")
+def read_root():
+    return {"status": "🟢 API is running"}

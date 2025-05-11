@@ -16,6 +16,7 @@ services:
         - Scripts/*.ipynb
         - FAISS/**
         - Elasticsearch/**
+        - Templates/**
     envVars:
       - key: PORT
         value: 8000

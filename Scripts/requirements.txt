@@ -3,6 +3,7 @@ uvicorn
 elasticsearch
 transformers
 torch
+jinja2
 faiss-cpu
 numpy
 flask

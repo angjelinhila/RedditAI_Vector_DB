@@ -1,10 +1,11 @@
 fastapi
 uvicorn
+jinja2
+python-multipart
 elasticsearch
+requests
 transformers
 torch
 faiss-cpu
-numpy
 flask
-faiss-cpu
 numpy

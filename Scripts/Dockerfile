@@ -6,6 +6,8 @@ WORKDIR /app
 # Copy files
 COPY . /app
 
+COPY ../Templates/ Templates/
+
 # Install dependencies
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt

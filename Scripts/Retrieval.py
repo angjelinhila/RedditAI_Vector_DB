@@ -84,6 +84,7 @@ def load_model():
     global _tokenizer, _model
     if _tokenizer is None or _model is None:
         print("🔧 Loading DistilBERT model and tokenizer...")
+        torch.set_grad_enabled(False)
         _tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
         _model = AutoModel.from_pretrained("distilbert-base-uncased")
         _model.eval().to("cpu")
@@ -92,8 +93,11 @@ def get_query_embedding(text):
     load_model()
     inputs = _tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     with torch.no_grad():
-        output = _model(**inputs)
-    return output.last_hidden_state.squeeze(0).mean(dim=0).numpy()
+        outputs = _model(**inputs)
+        embedding = outputs.last_hidden_state.squeeze(0).mean(dim=0).cpu().numpy()
+    del inputs, outputs
+    torch.cuda.empty_cache()
+    return embedding
 
 # --- Helper: Download if missing ---
 def ensure_local_file(filename, url, local_path):

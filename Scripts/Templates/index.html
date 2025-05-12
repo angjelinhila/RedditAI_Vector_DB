@@ -8,6 +8,7 @@
         input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
         textarea { width: 100%; height: 200px; }
         .result { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ddd; }
+        .error { color: red; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -24,10 +25,22 @@
             <option value="openai_submissions">openai_submissions</option>
             <option value="singularity_comments">singularity_comments</option>
             <option value="singularity_submissions">singularity_submissions</option>
+            <option value="artificial_comments">singularity_comments</option>
+            <option value="artificial_submissions">singularity_submissions</option>
+            <option value="artificialinteligence_comments">singularity_comments</option>
+            <option value="artificialinteligence_submissions">singularity_submissions</option>
+            <option value="transhumanism_comments">singularity_comments</option>
+            <option value="transhumanism_submissions">singularity_submissions</option>
         </select>
 
         <button type="submit">Submit</button>
     </form>
+
+    {% if error %}
+    <div class="error">
+        ⚠️ An error occurred: {{ error }}
+    </div>
+    {% endif %}
 
     {% if query %}
     <div class="result">
@@ -35,14 +48,18 @@
         <p>{{ query }}</p>
 
         <h3>💬 Generated Answer:</h3>
-        <p>{{ answer }}</p>
+        <p>{{ answer or "No answer returned." }}</p>
 
         <h3>📜 Retrieved Quotes:</h3>
+        {% if quotes %}
         <ul>
             {% for quote in quotes %}
                 <li>{{ quote }}</li>
             {% endfor %}
         </ul>
+        {% else %}
+        <p>No quotes found.</p>
+        {% endif %}
     </div>
     {% endif %}
 </body>

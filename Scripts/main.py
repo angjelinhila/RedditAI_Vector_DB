@@ -8,7 +8,7 @@ from typing import List
 from Retrieval import hybrid_query
 
 app = FastAPI(title="Hybrid Reddit Search API")
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="../templates")
 
 class QueryRequest(BaseModel):
     query: str

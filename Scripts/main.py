@@ -26,11 +26,21 @@ def home(request: Request):
 
 @app.post("/search", response_class=HTMLResponse)
 def search(request: Request, query: str = Form(...), filename: str = Form(...)):
-    result = hybrid_query(query, filename)
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "query": result["query"],
-        "answer": result["answer"],
-        "quotes": result["quotes"],
-        "filename": filename
-    })
+    try:
+        result = hybrid_query(query, filename)
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "query": result["query"],
+            "answer": result["answer"],
+            "quotes": result["quotes"],
+            "filename": filename
+        })
+    except Exception as e:
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "query": query,
+            "answer": "⚠️ Internal error occurred.",
+            "quotes": [],
+            "filename": filename,
+            "error": str(e)
+        })

@@ -99,14 +99,30 @@ def get_query_embedding(text):
     torch.cuda.empty_cache()
     return embedding
 
+def box_direct_download(shared_url):
+    """
+    Converts Box shared URL to a direct download URL.
+    """
+    # Example: https://utexas.box.com/s/abcdefgh12345678
+    if "box.com/s/" not in shared_url:
+        raise ValueError("Invalid Box shared URL format.")
+    file_id = shared_url.split("box.com/s/")[1].split("?")[0].strip("/")
+    return f"https://utexas.box.com/shared/static/{file_id}?raw=1"
+
 # --- Helper: Download if missing ---
-def ensure_local_file(filename, url, local_path):
+def ensure_local_file(filename, shared_url, local_path):
     if not os.path.exists(local_path):
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         print(f"📥 Downloading {filename} from Box...")
-        r = requests.get(url)
-        with open(local_path, "wb") as f:
-            f.write(r.content)
+
+        try:
+            direct_url = box_direct_download(shared_url)
+            r = requests.get(direct_url)
+            r.raise_for_status()  # Raise error for bad status
+            with open(local_path, "wb") as f:
+                f.write(r.content)
+        except Exception as e:
+            print(f"❌ Failed to download {filename}: {e}")
 
 # --- Load Index and Corpus ---
 def load_index_and_corpus(filename):

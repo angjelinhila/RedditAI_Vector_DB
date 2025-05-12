@@ -7,20 +7,10 @@ import faiss
 from transformers import AutoTokenizer, AutoModel
 from elasticsearch import Elasticsearch
 
-# --- Load Models ---
-model_name = "distilbert-base-uncased"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
-model.eval().to("cpu")
-
 # --- Elasticsearch Client ---
 es = Elasticsearch("http://localhost:9200")
 
-# --- Directory paths ---
-FAISS_INDEX_DIR = "/tmp/colbert_indexes"
-CORPUS_DIR = "/tmp/processed"
-
-# --- Box shared links (replace with your actual shared URLs) ---
+# --- Box Shared Links ---
 BOX_URLS = {
     "chatgpt_comments": {
         "index": "https://utexas.box.com/s/0evyjzslxi0a2h9xqydasilfpb4qa08s",
@@ -73,8 +63,37 @@ BOX_URLS = {
     
 }
 
+# --- Directory Paths ---
+FAISS_INDEX_DIR = "/tmp/colbert_indexes"
+CORPUS_DIR = "/tmp/processed"
+os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
+os.makedirs(CORPUS_DIR, exist_ok=True)
+
+# --- Global Cache ---
+loaded_indexes = {}
+loaded_corpora = {}
+
 # --- Global Parameters ---
 TOP_K = 5
+
+# --- Model + Tokenizer (Lazy loaded) ---
+_tokenizer = None
+_model = None
+
+def load_model():
+    global _tokenizer, _model
+    if _tokenizer is None or _model is None:
+        print("🔧 Loading DistilBERT model and tokenizer...")
+        _tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+        _model = AutoModel.from_pretrained("distilbert-base-uncased")
+        _model.eval().to("cpu")
+
+def get_query_embedding(text):
+    load_model()
+    inputs = _tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    with torch.no_grad():
+        output = _model(**inputs)
+    return output.last_hidden_state.squeeze(0).mean(dim=0).numpy()
 
 # --- Helper: Download if missing ---
 def ensure_local_file(filename, url, local_path):
@@ -85,11 +104,16 @@ def ensure_local_file(filename, url, local_path):
         with open(local_path, "wb") as f:
             f.write(r.content)
 
-# --- Helper to load index + corpus dynamically ---
+# --- Load Index and Corpus ---
 def load_index_and_corpus(filename):
+    if filename in loaded_indexes:
+        return loaded_indexes[filename], loaded_corpora[filename]
+
+    if filename not in BOX_URLS:
+        raise ValueError(f"No Box links configured for {filename}")
+
     index_url = BOX_URLS[filename]["index"]
     corpus_url = BOX_URLS[filename]["corpus"]
-
     index_path = os.path.join(FAISS_INDEX_DIR, f"{filename}_colbert.index")
     corpus_path = os.path.join(CORPUS_DIR, f"{filename}_cleaned.json")
 
@@ -99,14 +123,15 @@ def load_index_and_corpus(filename):
     index = faiss.read_index(index_path)
     with open(corpus_path, "r") as f:
         documents = [json.loads(line) for line in f]
-    return index, documents
 
-# --- Embedding Helper ---
-def get_query_embedding(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    with torch.no_grad():
-        output = model(**inputs)
-    return output.last_hidden_state.squeeze(0).mean(dim=0).numpy()
+    # Clear previous index to minimize memory
+    loaded_indexes.clear()
+    loaded_corpora.clear()
+
+    loaded_indexes[filename] = index
+    loaded_corpora[filename] = documents
+
+    return index, documents
 
 # --- Dense Retrieval ---
 def dense_search(query, filename, top_k=TOP_K):
@@ -115,12 +140,12 @@ def dense_search(query, filename, top_k=TOP_K):
     scores, indices = index.search(np.expand_dims(query_vec, axis=0), top_k)
     return [documents[i] for i in indices[0]]
 
-# --- Sparse Retrieval (BM25/Elasticsearch) ---
+# --- Sparse Retrieval ---
 def sparse_search(query, top_k=TOP_K):
     res = es.search(index="reddit_index", query={"match": {"body": query}}, size=top_k)
     return [hit["_source"].get("body", "") for hit in res["hits"]["hits"]]
 
-# --- RAG Synthesis (Simple) ---
+# --- RAG Synthesis ---
 def generate_rag_answer(query, docs):
     context = " ".join(doc.get("body", "") for doc in docs)
     return f"Answer based on retrieved context: {context[:500]}..."

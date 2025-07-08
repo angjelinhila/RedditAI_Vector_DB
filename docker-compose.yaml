@@ -16,7 +16,7 @@ services:
     build: ./faiss
     container_name: faiss_service
     volumes:
-      - "/Users/angjelin/Library/CloudStorage/Box-Box/Reddit Vector DB/FAISS/index:/mnt/faiss_index:ro"  # Mounted from Box
+      - "./faiss/index:/mnt/faiss_index:ro"  # Mounted from Box
 
     depends_on:
       - elasticsearch

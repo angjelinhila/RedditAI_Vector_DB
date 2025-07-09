@@ -9,6 +9,7 @@ import torch
 from transformers import AutoTokenizer, AutoModel
 from tqdm import tqdm
 import faiss
+from pathlib import Path
 
 # Use DistilBERT or ColBERT-style model
 model_name = "distilbert-base-uncased"
@@ -19,9 +20,9 @@ model.eval()
 device = torch.device("cpu")
 model.to(device)
 
-# TACC paths
-DATA_DIR = "/work/10481/angjelinhila8932/Reddit_Project/Reddit Vector DB Temp/Data/Processed"
-OUTPUT_DIR = "/work/10481/angjelinhila8932/Reddit_Project/Reddit Vector DB Temp/FAISS/index"
+# Relative to the root of your repo
+DATA_DIR = Path("Data/Processed").resolve()
+OUTPUT_DIR = Path("faiss/index").resolve()
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Embedding dimension

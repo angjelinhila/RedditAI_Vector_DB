@@ -4,19 +4,16 @@ services:
     env: python
     runtime: docker
     plan: free
-    dockerfilePath: Scripts/Dockerfile
+    dockerfilePath: ./Dockerfile
     autoDeploy: false
     buildFilter:
       paths:
-        - Scripts/Dockerfile
-        - Scripts/requirements.txt
-        - Scripts/main.py
-        - Scripts/Retrieval.py
-        - Scripts/*.py
-        - Scripts/*.ipynb
+        - Dockerfile
+        - requirements.txt
+        - main.py
         - FAISS/**
         - Elasticsearch/**
-        - Templates/**
+        - Scripts/**
     envVars:
       - key: PORT
         value: 8000
